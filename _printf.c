@@ -1,5 +1,6 @@
+#include <limits.h>
+#include <stdio.h>
 #include "main.h"
-#include <stdlib.h>
 
 /**
  * _printf - Produces output according to a format
