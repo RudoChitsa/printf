@@ -1,114 +1,86 @@
-#include <limits.h>
-#include <stdio.h>
-#include "main.h"
+#include <stdarg.h>
+#include "holberton.h"
+#include <stddef.h>
 
 /**
- * _printf - Produces output according to a format
- * @format: Is a character string. The format string
- * is composed of zero or more directives
- *
- * Return: The number of characters printed (excluding
- * the null byte used to end output to strings)
- *format is a character string. 
- *The format string is composed of zero or more directives. 
- *You don’t have to reproduce the buffer handling of the C library printf function
- *You don’t have to handle the flag characters
- *You don’t have to handle field width
- *You don’t have to handle precision
- *You don’t have to handle the length modifiers
- * check_for_specifiers - checks if there is a valid format specifier
- * @format: possible format specifier
- *
- * _putchar - Entry function. Write characteres
- * @c: variable va_list
- *
- * Return: Writed character
+ * get_op - select function for conversion char
+ * @c: char to check
+ * Return: pointer to function
  */
-int _putchar(char c)
-{
-	return (write(1, &c, 1));
-}
-/**
- * printc - Entry function. Print character
- * @list: variable va_list
- *
- * Return: 1 (nbyte)
- */
-int printc(va_list list)
-{
-	_putchar(va_arg(list, int));
-	return (1);
 
-}
-/**
- * print_string - Entry point. Print string
- * @s: variable va_list
- *
- * Return: k (nbytes) 6 (NULL)
- */
-int print_string(va_list s)
+int (*get_op(const char c))(va_list)
 {
-	char *str;
-	int k;
+	int i = 0;
 
-	str = va_arg(s, char*);
-	if (str == NULL)
+	flags_p fp[] = {
+		{"c", print_char},
+		{"s", print_str},
+		{"i", print_nbr},
+		{"d", print_nbr},
+		{"b", print_binary},
+		{"o", print_octal},
+		{"x", print_hexa_lower},
+		{"X", print_hexa_upper},
+		{"u", print_unsigned},
+		{"S", print_str_unprintable},
+		{"r", print_str_reverse},
+		{"p", print_ptr},
+		{"R", print_rot13},
+		{"%", print_percent}
+	};
+	while (i < 14)
 	{
-		write(1, "(null)", 6);
-		return (6);
-	}
-	else
-	{
-		for (k = 0; str[k] != '\0'; k++)
+		if (c == fp[i].c[0])
 		{
-			_putchar(str[k]);
+			return (fp[i].f);
+		}
+		i++;
+	}
+	return (NULL);
+}
+
+/**
+ * _printf - Reproduce behavior of printf function
+ * @format: format string
+ * Return: value of printed chars
+ */
+
+int _printf(const char *format, ...)
+{
+	va_list ap;
+	int sum = 0, i = 0;
+	int (*func)();
+
+	if (!format || (format[0] == '%' && format[1] == '\0'))
+		return (-1);
+	va_start(ap, format);
+
+	while (format[i])
+	{
+		if (format[i] == '%')
+		{
+			if (format[i + 1] != '\0')
+				func = get_op(format[i + 1]);
+			if (func == NULL)
+			{
+				_putchar(format[i]);
+				sum++;
+				i++;
+			}
+			else
+			{
+				sum += func(ap);
+				i += 2;
+				continue;
+			}
+		}
+		else
+		{
+			_putchar(format[i]);
+			sum++;
+			i++;
 		}
 	}
-	return (k);
-}
-/**
- * print_n - Entry point. Print number
- * @n: Variable va_list
- *
- * Return: count (nbytes)
- */
-int print_n(va_list n)
-{
-
-	long int number;
-	int counter, aux_variable, base;
-
-	counter = 0;
-	number = va_arg(n, int);
-
-	if (number < 0)
-	{
-		number *= -1;
-		_putchar(45);
-		counter++;
-	}
-	if (number >= 0 && number <= 9)
-	{
-		_putchar(number + 48);
-		counter++;
-	}
-	if (number > 9)
-	{
-		base = 10;
-
-		while (number / base > 9)
-		{
-			base *= 10;
-		}
-
-		while (base > 0)
-		{
-			aux_variable = number / base;
-			number = number % base;
-			_putchar(aux_variable + 48);
-			base = base / 10;
-			counter++;
-		}
-	}
-	return (counter);
+	va_end(ap);
+	return (sum);
 }
