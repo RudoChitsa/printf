@@ -19,78 +19,96 @@
  * check_for_specifiers - checks if there is a valid format specifier
  * @format: possible format specifier
  *
- * Return: pointer to valid function or NULL
- */
-static int (*check_for_specifiers(const char *format))(va_list)
-{
-	unsigned int i;
-	print_t p[] = {
-		{"c", print_c},
-		{"s", print_s},
-		{"i", print_i},
-		{"d", print_d},
-		{"u", print_u},
-		{"b", print_b},
-		{"o", print_o},
-		{"x", print_x},
-		{"X", print_X},
-		{"p", print_p},
-		{"S", print_S},
-		{"r", print_r},
-		{"R", print_R},
-		{NULL, NULL}
-	};
-
-	for (i = 0; p[i].t != NULL; i++)
-	{
-		if (*(p[i].t) == *format)
-		{
-			break;
-		}
-	}
-	return (p[i].f);
-}
-
-/**
- * _printf - prints anything
- * @format: list of argument types passed to the function
+ * _putchar - Entry function. Write characteres
+ * @c: variable va_list
  *
- * Return: number of characters printed
+ * Return: Writed character
  */
-int _printf(const char *format, ...)
+int _putchar(char c)
 {
-	unsigned int i = 0, count = 0;
-	va_list valist;
-	int (*f)(va_list);
+	return (write(1, &c, 1));
+}
+/**
+ * printc - Entry function. Print character
+ * @list: variable va_list
+ *
+ * Return: 1 (nbyte)
+ */
+int printc(va_list list)
+{
+	_putchar(va_arg(list, int));
+	return (1);
 
-	if (format == NULL)
-		return (-1);
-	va_start(valist, format);
-	while (format[i])
+}
+/**
+ * print_string - Entry point. Print string
+ * @s: variable va_list
+ *
+ * Return: k (nbytes) 6 (NULL)
+ */
+int print_string(va_list s)
+{
+	char *str;
+	int k;
+
+	str = va_arg(s, char*);
+	if (str == NULL)
 	{
-		for (; format[i] != '%' && format[i]; i++)
-		{
-			_putchar(format[i]);
-			count++;
-		}
-		if (!format[i])
-			return (count);
-		f = check_for_specifiers(&format[i + 1]);
-		if (f != NULL)
-		{
-			count += f(valist);
-			i += 2;
-			continue;
-		}
-		if (!format[i + 1])
-			return (-1);
-		_putchar(format[i]);
-		count++;
-		if (format[i + 1] == '%')
-			i += 2;
-		else
-			i++;
+		write(1, "(null)", 6);
+		return (6);
 	}
-	va_end(valist);
-	return (count);
+	else
+	{
+		for (k = 0; str[k] != '\0'; k++)
+		{
+			_putchar(str[k]);
+		}
+	}
+	return (k);
+}
+/**
+ * print_n - Entry point. Print number
+ * @n: Variable va_list
+ *
+ * Return: count (nbytes)
+ */
+int print_n(va_list n)
+{
+
+	long int number;
+	int counter, aux_variable, base;
+
+	counter = 0;
+	number = va_arg(n, int);
+
+	if (number < 0)
+	{
+		number *= -1;
+		_putchar(45);
+		counter++;
+	}
+	if (number >= 0 && number <= 9)
+	{
+		_putchar(number + 48);
+		counter++;
+	}
+	if (number > 9)
+	{
+		base = 10;
+
+		while (number / base > 9)
+		{
+			base *= 10;
+		}
+
+		while (base > 0)
+		{
+			aux_variable = number / base;
+			number = number % base;
+			_putchar(aux_variable + 48);
+			base = base / 10;
+			counter++;
+		}
+	}
+	return (counter);
 }
