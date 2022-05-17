@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include "main.h"
 /**
- * _printf - printf function.
  * @format: variable
  * int len;
  * int len2;
@@ -54,9 +53,7 @@ int _printf(const char *format, ...)
 }
 
 /**
- * cmp_func - Entry point
- * @a: character.
- *
+
  * Return: 0.
  */
 int (*cmp_func(const char a))(va_list)
